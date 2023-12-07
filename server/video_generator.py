@@ -14,7 +14,7 @@ background_color = (52, 53, 65)
 
 # User profile information
 user_profile_image_path = "./profile_picture.png"
-user_name = "@ia_generation_ai"
+user_name = "ia_generation_ai"
 
 def download_image(url, filename):
     headers = {
@@ -37,11 +37,11 @@ def create_user_prompt_clip(prompt):
     line_height = 50  # Hauteur d'une ligne de texte
 
     # Créer les clips pour la photo de profil et le nom d'utilisateur
-    profile_pic_clip = ImageClip(user_profile_image_path, transparent=True).set_duration(3).resize(width=50)
-    name_clip = TextClip(user_name, fontsize=30, color='white').set_duration(3)
+    profile_pic_clip = ImageClip(user_profile_image_path, transparent=True).set_duration(3).resize(width=60)
+    name_clip = TextClip(user_name, fontsize=30, color='white', font='Arial-Bold').set_duration(3)
 
     # Positionner la photo de profil et le nom d'utilisateur
-    profile_pic_clip = profile_pic_clip.set_position((padding, 'center'))
+    profile_pic_clip = profile_pic_clip.set_position((padding - 5, 'center'))
     name_clip = name_clip.set_position((padding + 80, 'center'))  # 80 est la largeur de l'image + un petit espace
 
     # Diviser le prompt en plusieurs lignes et créer des clips de texte pour chaque ligne
@@ -50,17 +50,17 @@ def create_user_prompt_clip(prompt):
     y_position = 0  # Position Y initiale pour le premier prompt
 
     for line in wrapped_prompt:
-        line_clip = TextClip(line, fontsize=30, color='white', size=(max_width, line_height)).set_duration(3)
+        line_clip = TextClip(line, fontsize=30, color='white', align='West', size=(max_width, line_height)).set_duration(3)
         line_clip = line_clip.set_position((padding, y_position))
         prompt_clips.append(line_clip)
-        y_position += line_height + 10  # Ajouter un espace entre les lignes
+        y_position += line_height  # Ajouter un espace entre les lignes
 
     # Assembler les clips de prompt dans un seul clip
     prompt_combined_clip = CompositeVideoClip(prompt_clips, size=(max_width, y_position))
     prompt_height = y_position  # Hauteur totale du prompt
 
     # Assembler la photo de profil et le nom d'utilisateur dans un seul clip
-    user_info_height = 70  # Hauteur ajustée pour l'ensemble de l'info utilisateur
+    user_info_height = 120  # Hauteur ajustée pour l'ensemble de l'info utilisateur
     user_info_clip = CompositeVideoClip([profile_pic_clip, name_clip], size=(video_width, user_info_height))
     user_info_clip = user_info_clip.set_position(('center', 'top'))
 
@@ -72,7 +72,6 @@ def create_user_prompt_clip(prompt):
     combined_clip = combined_clip.on_color(color=background_color, col_opacity=1, size=(video_width, video_height))
 
     return combined_clip
-
 
 
 
