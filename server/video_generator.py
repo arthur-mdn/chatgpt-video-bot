@@ -37,8 +37,8 @@ def create_user_prompt_clip(prompt):
     line_height = 50  # Hauteur d'une ligne de texte
 
     # Créer les clips pour la photo de profil et le nom d'utilisateur
-    profile_pic_clip = ImageClip(user_profile_image_path, transparent=True).set_duration(3).resize(width=60)
-    name_clip = TextClip(user_name, fontsize=30, color='white', font='Arial-Bold').set_duration(3)
+    profile_pic_clip = ImageClip(user_profile_image_path).set_duration(3).resize(width=60)
+    name_clip = TextClip(user_name, fontsize=35, color='white', font='Arial-Bold').set_duration(3)
 
     # Positionner la photo de profil et le nom d'utilisateur
     profile_pic_clip = profile_pic_clip.set_position((padding - 5, 'center'))
@@ -50,7 +50,7 @@ def create_user_prompt_clip(prompt):
     y_position = 0  # Position Y initiale pour le premier prompt
 
     for line in wrapped_prompt:
-        line_clip = TextClip(line, fontsize=30, color='white', align='West', size=(max_width, line_height)).set_duration(3)
+        line_clip = TextClip(line, fontsize=35, color='white', align='West', size=(max_width, line_height)).set_duration(3)
         line_clip = line_clip.set_position((padding, y_position))
         prompt_clips.append(line_clip)
         y_position += line_height  # Ajouter un espace entre les lignes
@@ -93,7 +93,7 @@ def create_video_from_json(json_data):
         image_clip = image_clip.resize(height=video_height // 2)
 
         # Create a text clip for the response
-        response_clip = TextClip(entry['response'], fontsize=30, color='white', size=(video_width, video_height // 10))
+        response_clip = TextClip(entry['response'], fontsize=35, color='white', size=(video_width, video_height // 10))
         response_clip = response_clip.set_duration(1).set_position("center").on_color(color=background_color, col_opacity=1)
 
         # Combine the image and response text into one clip
