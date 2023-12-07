@@ -16,6 +16,10 @@ background_color = (52, 53, 65)
 user_profile_image_path = "./profile_picture.png"
 user_name = "ia_generation_ai"
 
+# Informations sur le profil de ChatGPT
+chatgpt_profile_image_path = "./chatgpt_logo.png"
+chatgpt_name = "ChatGPT"
+
 def download_image(url, filename):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
@@ -74,6 +78,34 @@ def create_user_prompt_clip(prompt):
     return combined_clip
 
 
+def create_chatgpt_response_clip(image_filename):
+    padding = 60
+    profile_pic_width = 60
+    element_spacing = 20  # Espace entre les éléments
+
+    # Créer les clips pour la photo de profil et le nom de ChatGPT
+    chatgpt_profile_pic_clip = ImageClip(chatgpt_profile_image_path).set_duration(3).resize(width=profile_pic_width)
+    chatgpt_name_clip = TextClip(chatgpt_name, fontsize=35, color='white', font='Arial-Bold').set_duration(3)
+
+    # Créer un clip pour l'image générée
+    generated_image_clip = ImageClip(image_filename).set_duration(3).resize(height=video_height // 2)
+
+    # Calculer la hauteur totale du clip de réponse ChatGPT
+    total_response_height = chatgpt_profile_pic_clip.h + element_spacing + chatgpt_name_clip.h + element_spacing + generated_image_clip.h
+
+    # Calculer la position de départ verticale
+    start_y_position = (video_height - total_response_height) // 2
+
+    # Positionner chaque élément
+    chatgpt_profile_pic_clip = chatgpt_profile_pic_clip.set_position((padding, start_y_position))
+    chatgpt_name_clip = chatgpt_name_clip.set_position((padding, start_y_position + chatgpt_profile_pic_clip.h + element_spacing))
+    generated_image_clip = generated_image_clip.set_position(('center', start_y_position + chatgpt_profile_pic_clip.h + chatgpt_name_clip.h + 2 * element_spacing))
+
+    # Assembler le clip d'information de ChatGPT et l'image générée
+    combined_clip = CompositeVideoClip([chatgpt_profile_pic_clip, chatgpt_name_clip, generated_image_clip], size=(video_width, video_height))
+    combined_clip = combined_clip.on_color(color=background_color, col_opacity=1)
+
+    return combined_clip
 
 
 
@@ -84,26 +116,13 @@ def create_video_from_json(json_data):
         # Create a clip for the user prompt
         user_prompt_clip = create_user_prompt_clip(entry['prompt'])
 
-        # Download and create a clip for the image
+        # Create a clip for the ChatGPT response
         image_filename = f"temp_image_{index}.webp"
         download_image(entry['imageUrl'], image_filename)
-        image_clip = ImageClip(image_filename).set_duration(1)
-
-        # Resize the image to fit the video dimensions
-        image_clip = image_clip.resize(height=video_height // 2)
-
-        # Create a text clip for the response
-        response_clip = TextClip(entry['response'], fontsize=35, color='white', size=(video_width, video_height // 10))
-        response_clip = response_clip.set_duration(1).set_position("center").on_color(color=background_color, col_opacity=1)
-
-        # Combine the image and response text into one clip
-        combined_clip = CompositeVideoClip([image_clip.set_position("top"), response_clip.set_position("bottom")], size=(video_width, video_height))
-
-        # Apply the background color to the entire clip
-        combined_clip = combined_clip.on_color(color=background_color, col_opacity=1)
+        chatgpt_response_clip = create_chatgpt_response_clip(image_filename)
 
         # Add the clips to the final video
-        clips.extend([user_prompt_clip, combined_clip])
+        clips.extend([user_prompt_clip, chatgpt_response_clip])
 
     # Concatenate all the clips into the final video
     final_clip = concatenate_videoclips(clips, method="compose")
