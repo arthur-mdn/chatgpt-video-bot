@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT Interaction",
+  "version": "1.0",
+  "permissions": ["activeTab", "tabs"],
+  "host_permissions": ["https://chat.openai.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "public/icon768.png",
+      "48": "public/icon768.png",
+      "128": "public/icon768.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://chat.openai.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "public/icon768.png",
+    "48": "public/icon768.png",
+    "128": "public/icon768.png"
+  }
+}
