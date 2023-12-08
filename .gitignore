@@ -3,3 +3,9 @@
 # dependencies
 /node_modules
 /server/node_modules
+
+# exclude everything
+server/outputs/*
+
+# exception to the rule
+!server/outputs/.gitkeep

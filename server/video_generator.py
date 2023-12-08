@@ -20,7 +20,7 @@ user_name = "ia_generation_ai"
 combined_clip_duration = 3  # Durée de la première interaction
 user_clip_duration = 2.5  # Durée de chaque clip utilisateur
 chatgpt_clip_duration = 3  # Durée de chaque clip de réponse de ChatGPT
-last_chatgpt_clip_duration = 5
+last_chatgpt_clip_duration = 7
 
 # Informations sur le profil de ChatGPT
 chatgpt_profile_image_path = "./chatgpt_logo.png"
