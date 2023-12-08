@@ -57,7 +57,7 @@ def create_user_prompt_clip(prompt, is_combined=False):
     name_clip = name_clip.set_position((padding + 80, 'center'))  # 80 est la largeur de l'image + un petit espace
 
     # Diviser le prompt en plusieurs lignes et créer des clips de texte pour chaque ligne
-    wrapped_prompt = wrap(prompt, width=60)  # Ajustez le paramètre 'width' selon vos besoins
+    wrapped_prompt = wrap(prompt, width=55)  # Ajustez le paramètre 'width' selon vos besoins
     prompt_clips = []
     y_position = 0  # Position Y initiale pour le premier prompt
 
@@ -154,11 +154,18 @@ def create_combined_first_clip(user_prompt, chatgpt_image_filename):
     return combined_clip
 
 
+def save_json_to_file(json_data, output_folder_path):
+    json_file_path = os.path.join(output_folder_path, 'prompts.json')
+    with open(json_file_path, 'w', encoding='utf-8') as json_file:
+        json.dump(json_data, json_file, ensure_ascii=False)
+
 def create_video_from_json(json_data):
     # Crée un dossier de sortie avec un nom aléatoire basé sur un timestamp
     output_folder = datetime.now().strftime("%Y%m%d%H%M%S")
     output_folder_path = os.path.join("outputs", output_folder)
     os.makedirs(output_folder_path, exist_ok=True)
+
+    save_json_to_file(json_data, output_folder_path)
 
     temp_folder_path = os.path.join(output_folder_path, "temp")
     os.makedirs(temp_folder_path, exist_ok=True)
@@ -174,11 +181,13 @@ def create_video_from_json(json_data):
         download_image(json_data[0]['imageUrl'], first_chatgpt_image)
         first_combined_clip = create_combined_first_clip(first_user_prompt, first_chatgpt_image)
         clips.append(first_combined_clip)
-
+    print(json_data)
     # Créer des clips séparés pour les interactions suivantes
     for index, entry in enumerate(json_data[1:], start=1):
         user_prompt_clip = create_user_prompt_clip(entry['prompt'])
         image_filename = os.path.join(temp_folder_path, f"temp_image_{index}.webp")
+        print(entry)
+        print(f"Téléchargement de l'image: {entry['imageUrl']}")
         download_image(entry['imageUrl'], image_filename)
         # Vérifiez si c'est le dernier clip
         if index == len(json_data) - 1:
