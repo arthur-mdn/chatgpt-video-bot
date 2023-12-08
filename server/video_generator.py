@@ -20,6 +20,7 @@ user_name = "ia_generation_ai"
 combined_clip_duration = 3  # Durée de la première interaction
 user_clip_duration = 2.5  # Durée de chaque clip utilisateur
 chatgpt_clip_duration = 3  # Durée de chaque clip de réponse de ChatGPT
+last_chatgpt_clip_duration = 5
 
 # Informations sur le profil de ChatGPT
 chatgpt_profile_image_path = "./chatgpt_logo.png"
@@ -86,8 +87,10 @@ def create_user_prompt_clip(prompt, is_combined=False):
     return combined_clip
 
 
-def create_chatgpt_response_clip(image_filename, is_combined=False):
+def create_chatgpt_response_clip(image_filename, is_combined=False, last_clip_duration=None):
     clip_duration = combined_clip_duration if is_combined else chatgpt_clip_duration
+    if last_clip_duration is not None:
+        clip_duration = last_clip_duration
 
     padding = 60
     profile_pic_width = 60
@@ -177,7 +180,12 @@ def create_video_from_json(json_data):
         user_prompt_clip = create_user_prompt_clip(entry['prompt'])
         image_filename = os.path.join(temp_folder_path, f"temp_image_{index}.webp")
         download_image(entry['imageUrl'], image_filename)
-        chatgpt_response_clip = create_chatgpt_response_clip(image_filename)
+        # Vérifiez si c'est le dernier clip
+        if index == len(json_data) - 1:
+            chatgpt_response_clip = create_chatgpt_response_clip(image_filename, last_clip_duration=last_chatgpt_clip_duration)
+        else:
+            chatgpt_response_clip = create_chatgpt_response_clip(image_filename)
+
         clips.extend([user_prompt_clip, chatgpt_response_clip])
 
     # Concaténer tous les clips dans la vidéo finale
