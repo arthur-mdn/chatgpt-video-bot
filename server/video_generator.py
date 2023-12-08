@@ -1,5 +1,6 @@
 from moviepy.editor import ImageClip, concatenate_videoclips, TextClip, CompositeVideoClip
 from textwrap import wrap
+from datetime import datetime
 import requests
 import os
 import sys
@@ -151,12 +152,22 @@ def create_combined_first_clip(user_prompt, chatgpt_image_filename):
 
 
 def create_video_from_json(json_data):
+    # Crée un dossier de sortie avec un nom aléatoire basé sur un timestamp
+    output_folder = datetime.now().strftime("%Y%m%d%H%M%S")
+    output_folder_path = os.path.join("outputs", output_folder)
+    os.makedirs(output_folder_path, exist_ok=True)
+
+    temp_folder_path = os.path.join(output_folder_path, "temp")
+    os.makedirs(temp_folder_path, exist_ok=True)
+
+    output_path = os.path.join(output_folder_path, "output.mp4")
+
     clips = []
 
     # Créer un clip spécial pour la première interaction
     if json_data:
         first_user_prompt = json_data[0]['prompt']
-        first_chatgpt_image = f"temp_image_0.webp"
+        first_chatgpt_image = os.path.join(temp_folder_path, "temp_image_0.webp")
         download_image(json_data[0]['imageUrl'], first_chatgpt_image)
         first_combined_clip = create_combined_first_clip(first_user_prompt, first_chatgpt_image)
         clips.append(first_combined_clip)
@@ -164,18 +175,21 @@ def create_video_from_json(json_data):
     # Créer des clips séparés pour les interactions suivantes
     for index, entry in enumerate(json_data[1:], start=1):
         user_prompt_clip = create_user_prompt_clip(entry['prompt'])
-        image_filename = f"temp_image_{index}.webp"
+        image_filename = os.path.join(temp_folder_path, f"temp_image_{index}.webp")
         download_image(entry['imageUrl'], image_filename)
         chatgpt_response_clip = create_chatgpt_response_clip(image_filename)
         clips.extend([user_prompt_clip, chatgpt_response_clip])
 
     # Concaténer tous les clips dans la vidéo finale
     final_clip = concatenate_videoclips(clips, method="compose")
-    final_clip.write_videofile("output.mp4", fps=24)
+    final_clip.write_videofile(output_path, fps=24)
 
     # Nettoyer les fichiers image temporaires
     for index in range(len(json_data)):
-        os.remove(f"temp_image_{index}.webp")
+        os.remove(os.path.join(temp_folder_path, f"temp_image_{index}.webp"))
+
+    print(f"La vidéo a été sauvegardée sous: {output_path}")
+
 
 if __name__ == "__main__":
     json_data = json.loads(sys.argv[1])
