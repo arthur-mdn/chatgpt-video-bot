@@ -6,6 +6,7 @@ import os
 import sys
 import json
 
+delete_temp_files_after_generation = False
 # Define the size of the video
 video_width = 1080
 video_height = 1920
@@ -215,8 +216,11 @@ def create_video_from_json(json_data):
     final_clip.write_videofile(output_path, fps=24)
 
     # Nettoyer les fichiers image temporaires
-    for index in range(len(json_data)):
-        os.remove(os.path.join(temp_folder_path, f"temp_image_{index}.webp"))
+    if delete_temp_files_after_generation:
+        for index in range(len(json_data)):
+            os.remove(os.path.join(temp_folder_path, f"temp_image_{index}.webp"))
+        # Supprimer le dossier "temp" vide
+        os.rmdir(temp_folder_path)
 
     print(f"La vidéo a été sauvegardée sous: {output_path}")
 
