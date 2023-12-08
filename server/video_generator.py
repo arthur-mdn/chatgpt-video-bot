@@ -197,13 +197,10 @@ def create_video_from_json(json_data):
         download_image(json_data[0]['imageUrl'], first_chatgpt_image)
         first_combined_clip = create_combined_first_clip(first_user_prompt, first_chatgpt_image)
         clips.append(first_combined_clip)
-    print(json_data)
     # Créer des clips séparés pour les interactions suivantes
     for index, entry in enumerate(json_data[1:], start=1):
         user_prompt_clip = create_user_prompt_clip(entry['prompt'])
         image_filename = os.path.join(temp_folder_path, f"temp_image_{index}.webp")
-        print(entry)
-        print(f"Téléchargement de l'image: {entry['imageUrl']}")
         download_image(entry['imageUrl'], image_filename)
         # Vérifiez si c'est le dernier clip
         if index == len(json_data) - 1:
